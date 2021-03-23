@@ -16,6 +16,10 @@ python3 -m pip install -r requirements.txt
 
 ```
 
+## config
+
+see `config.ini`
+
 ## Run app
 
 
