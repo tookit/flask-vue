@@ -1,0 +1,149 @@
+<!-- templates/index.html -->
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <script src="https://unpkg.com/vue@next"></script>
+  <!-- import CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/element-plus/lib/theme-chalk/index.css">
+  <!-- import JavaScript -->
+  <script src="https://unpkg.com/element-plus/lib/index.full.js"></script>
+  <title>Element Flask demo</title>
+  <style>
+    .weather {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    dl:after {
+      content: "";
+      display: table;
+      clear: both;
+    }
+
+    dd {
+      padding: .5em 0;
+    }
+
+    dl {
+      width: 100%;
+    }
+
+    dd {
+      display: inline-block;
+      width: 30%;
+    }
+
+    dt {
+      text-align: right;
+      font-weight: bold;
+      clear: left;
+      float: left;
+    }
+
+    dd {
+      width: 70%;
+      padding-left: 1em;
+      clear: right;
+    }
+
+  </style>
+</head>
+
+
+<body>
+  <div id="app">
+    <el-card class="weather">
+      <template #header>
+        <div class="card-header">
+          <el-select v-model="value" placeholder="Select" @change="handleChange">
+            <el-option v-for="item in items" :key="item.value" :label="item.label" :value="item.value">
+            </el-option>
+          </el-select>
+        </div>
+      </template>
+      <div id="result" v-loading="loading">
+        <div v-if="resp">
+          <p>
+            <strong>City: </strong>
+            <span>{{value}}</span>
+          </p>
+          <p>
+            <strong>Updated time:: </strong>
+            <span>{{resp.updated_at}}</span>
+          </p>
+          <p>
+            <strong>Weather: </strong>
+            <span>{{resp.weather[0].description}}</span>
+          </p>
+          <p>
+            <strong>Temperature: </strong>
+            <span>{{resp.main.temp}} °C </span>
+          </p>
+          <p>
+            <strong>Wind: </strong>
+            <span>{{resp.wind.speed}} m/h</span>
+          </p>
+        </div>
+      </div>
+    </el-card>
+  </div>
+  <script>
+    const App = {
+      data() {
+        return {
+          loading: false,
+          items: [
+            {
+              label: 'sSydney',
+              value: 'sSydney'
+            },
+            {
+              label: 'Melbourne',
+              value: 'Melbourne'
+            },
+            {
+              label: 'Wollongong',
+              value: 'Wollongong'
+            }                        
+          ],
+          value: '',
+          resp: null
+        };
+      },
+      methods: {
+        handleChange(city) {
+          this.fetchRecord(city)
+        },
+        fetchRecord(city) {
+          this.loading = true
+          const url = `/api/weather?city=${city}`
+          fetch(url)
+            .then((resp) => {
+              return resp.json()
+            })
+            .then((data) => {
+              if(data.error) {
+                this.$notify({
+                  title: 'Warning',
+                  message: data.error,
+                  type: 'warning'
+                })
+                this.loading = false
+              }else {
+                this.resp = data
+                this.loading = false
+              }
+            });
+        }
+      }
+    };
+    const app = Vue.createApp(App);
+    app.use(ElementPlus);
+    app.mount("#app");
+  </script>
+</body>
+
+
+</html>
